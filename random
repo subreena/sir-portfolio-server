@@ -1,0 +1,89 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const multer = require("multer");
+const Student = require("./model/student_model");
+
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
+app.use(express.json());
+app.use(cors());
+app.use(express.static('public'));
+
+
+app.get('/', (req,res) =>{
+    res.send("HELLO FROM SERVER!")
+});
+
+app.get("/api/students", async (req, res) => {
+    try {
+      const student = await Student.find({});
+      res.status(200).json(student);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/students/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const student = await Student.findById(id);
+      res.status(200).json(student);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  app.post("/api/students", async (req, res) => {
+    try {
+      const student = await Student.create(req.body);
+      res.status(200).json(student);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+      console.log(error);
+    }
+  });
+  
+  app.put("/api/students/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const student = await Student.findByIdAndUpdate(id, req.body, { new: true });
+      if (!student) {
+        return res.status(404).json({ message: "NO Student" });
+      }
+      res.status(200).json(student);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+      console.log(error);
+    }
+  });
+  
+  app.delete("/api/students/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const student = await Student.findByIdAndDelete(id);
+      if (!student) {
+        return res.status(404).json({ message: "NO Student to delete" });
+      }
+      res.status(200).json({ message: "Student deleted!" });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+      console.log(error);
+    }
+  });
+
+  
+mongoose
+  .connect(
+  "mongodb+srv://subreena20:abc1abc@server1.4whvdhn.mongodb.net/?retryWrites=true&w=majority&appName=server1")
+  .then(() => {
+    console.log("Connected to MongoDB!");
+    app.listen(3000, () => {
+      console.log("server running on 3000");
+    });
+  })
+  .catch((error) => {
+    console.log("FAIL MONGODB!");
+    console.log(error);
+  });
