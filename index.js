@@ -4,12 +4,11 @@ const cors = require("cors");
 const multer = require("multer");
 const Student = require("./model/student_model");
 
-
 const app = express();
-const port = 3000; 
+const port = 3000;
 
 app.use(express.json());
-app.use(cors(corsConfig));
+app.use(cors());
 app.use(express.static("public"));
 app.use("/files", express.static("files"));
 
