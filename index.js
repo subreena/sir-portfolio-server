@@ -54,10 +54,13 @@ app.get("/api/students/:id", async (req, res) => {
 
 // Create a new student
 app.post("/api/students", upload.single("work"), async (req, res) => {
-  const { name, roll, thesis_or_project, thesis_project, university, workLink } = req.body;
-  const work = req.file;
-
   try {
+    console.log('Request Body:', req.body);
+    console.log('Uploaded File:', req.file);
+
+    const { name, roll, thesis_or_project, thesis_project, university, workLink } = req.body;
+    const work = req.file;
+
     const student = await Student.create({
       name,
       roll,
@@ -70,10 +73,11 @@ app.post("/api/students", upload.single("work"), async (req, res) => {
 
     res.status(200).json(student);
   } catch (error) {
-    console.error(error);
+    console.error('Error creating student:', error);
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Update a student by ID
 app.put("/api/students/:id", async (req, res) => {
