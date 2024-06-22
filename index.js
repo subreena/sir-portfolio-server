@@ -5,7 +5,7 @@ const multer = require("multer");
 const Student = require("./model/student_model");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 app.use(express.json());
 app.use(cors());
@@ -34,8 +34,7 @@ app.get("/api/students", async (req, res) => {
     const students = await Student.find({});
     res.status(200).json(students);
   } catch (error) {
-    console.error('Error fetching students:', error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -49,14 +48,16 @@ app.get("/api/students/:id", async (req, res) => {
     }
     res.status(200).json(student);
   } catch (error) {
-    console.error('Error fetching student:', error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
 
 // Create a new student
 app.post("/api/students", upload.single("work"), async (req, res) => {
   try {
+    console.log('Request Body:', req.body);
+    console.log('Uploaded File:', req.file);
+
     const { name, roll, thesis_or_project, thesis_project, university, workLink } = req.body;
     const work = req.file;
 
@@ -73,22 +74,25 @@ app.post("/api/students", upload.single("work"), async (req, res) => {
     res.status(200).json(student);
   } catch (error) {
     console.error('Error creating student:', error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: error.message });
   }
 });
+
 
 // Update a student by ID
 app.put("/api/students/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const student = await Student.findByIdAndUpdate(id, req.body, { new: true });
+    const student = await Student.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
     res.status(200).json(student);
   } catch (error) {
-    console.error('Error updating student:', error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -102,14 +106,14 @@ app.delete("/api/students/:id", async (req, res) => {
     }
     res.status(200).json({ message: "Student deleted" });
   } catch (error) {
-    console.error('Error deleting student:', error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 });
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGODB_URI, {
+  .connect("mongodb+srv://subreena20:abc1abc@server1.4whvdhn.mongodb.net/?retryWrites=true&w=majority&appName=server1", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -123,5 +127,3 @@ mongoose
     console.error("Failed to connect to MongoDB");
     console.error(error);
   });
-
-module.exports = app;
